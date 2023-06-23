@@ -1,0 +1,11 @@
+{
+"url_list":"https://admin.lanmaoxueche.com/app/emulator/page/list",
+"url_add":"https://admin.lanmaoxueche.com/app/emulatorAppointmentRecord/add",
+"url_cancel":"https://admin.lanmaoxueche.com/applet/appointmentRecord/cancel",
+"proxies":{"http":"http://localhost:7890", "https": "http://localhost:7890"},
+"headers":{
+    "Content-Type": "application/json",
+    "Connection": "close",
+    "Cookie": "JSESSIONID=B704FCF3E178CD344FB7D4C6033FFAE5"
+}
+}
