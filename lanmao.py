@@ -15,7 +15,7 @@ with open("config.json", "r") as config:
 
 
 def get_emulator_time_list(days, StoreId, id):
-    appointed_day = int(time.strftime("%d")) + days
+    appointed_day = str(int(time.strftime("%d")) + days).zfill(2)
     appointed_time = time.strftime("%Y-%m-" + str(appointed_day))
     payload = json.dumps({
         "appointmentDate": appointed_time,
@@ -48,9 +48,10 @@ def add_appointment(start_time, days, id, StoreId, subject):
     if start_time is None:
         start_time = ["14:00", "16:00"]
     if days is None:
-        days = [0, 1, 2]
+        days = [2]
     for day in days:
         emulator_time_list = get_emulator_time_list(day, StoreId, id)
+        # print(emulator_time_list)
         for time_list in emulator_time_list:
             if set(start_time) < set(time_list['leftTime']):
                 for start in start_time:
@@ -86,8 +87,11 @@ def main():
     parser.add_argument("--start_time", default=None, nargs="*", type=str, help="预约时间 时间格式：12:00")
     parser.add_argument("--id", default=430426200411200536, help="身份证")
     parser.add_argument("--subject", default="科目三", help="预约科目")
+    parser.add_argument("--appointment", default=None, nargs="?", help="已经预约的课程")
+    parser.add_argument("--lession_id", default=None, nargs="?", help="取消预约id")
     args = parser.parse_args()
     add_appointment(args.start_time, args.days, args.id, args.store_id, args.subject)
+    # print(get_emulator_time_list(args.days, args.store_id, args.id))
 
 
 if __name__ == "__main__":

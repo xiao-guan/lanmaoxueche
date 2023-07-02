@@ -6,6 +6,7 @@
 "headers":{
     "Content-Type": "application/json",
     "Connection": "close",
-    "Cookie": "JSESSIONID=B704FCF3E178CD344FB7D4C6033FFAE5"
+    "Cookie": "JSESSIONID=6DC9F01B7DC3363C0623CB2982C40395",
+    "Authorization": "a31e497b-9d1e-44e5-b880-179d5fd7f07a"
 }
 }
