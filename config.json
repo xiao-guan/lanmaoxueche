@@ -1,12 +1,31 @@
 {
-"url_list":"https://admin.lanmaoxueche.com/app/emulator/page/list",
+"url_emulator_list":"https://admin.lanmaoxueche.com/app/emulator/page/list",
+"url_appointmentRecord_list":"https://admin.lanmaoxueche.com/applet/appointmentRecord/page/list",
 "url_add":"https://admin.lanmaoxueche.com/app/emulatorAppointmentRecord/add",
 "url_cancel":"https://admin.lanmaoxueche.com/applet/appointmentRecord/cancel",
 "proxies":{"http":"http://localhost:7890", "https": "http://localhost:7890"},
 "headers":{
     "Content-Type": "application/json",
     "Connection": "close",
-    "Cookie": "JSESSIONID=6DC9F01B7DC3363C0623CB2982C40395",
-    "Authorization": "a31e497b-9d1e-44e5-b880-179d5fd7f07a"
+    "Cookie": "JSESSIONID=99FEA71C784CF5AC9714D8BFD685512F",
+    "Authorization": "5a58b65c-1fc9-427c-8c89-cbf134c533e1"
+},
+
+"payload_schedule":{
+    "appointmentDate": "2023-07-26",
+    "emulatorStoreId": 10,
+    "drivingSchoolId": 1,
+    "identityNumber": 371081200406083416,
+    "page": 1
+},
+
+"payload_appointment":{
+    "startTime": "14:00",
+    "appointmentDate": "2023-07-26",
+    "emulatorId": 312,
+    "identityNumber": 371081200406083416,
+    "emulatorStoreId": 10,
+    "subject": "科目三"
 }
+
 }
