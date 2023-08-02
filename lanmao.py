@@ -1,6 +1,8 @@
 import argparse
 import copy
+import csv
 import datetime
+import os
 from datetime import datetime as dt
 import time
 import requests
@@ -16,16 +18,15 @@ with open("config.json", "r", encoding="utf8") as config:
 """
 
 
-def get_emulator_time_list(StoreId, id, days=0):
+def get_emulator_time_list(StoreId, days=0):
     appointed_time = str(datetime.date.today() + datetime.timedelta(days=days))
     config_data["payload_schedule"]["appointmentDate"] = appointed_time
     config_data["payload_schedule"]["emulatorStoreId"] = StoreId
-    config_data["payload_schedule"]["identityNumber"] = id
     payload = json.dumps(config_data["payload_schedule"])
 
     res_time_list = ["8:00", "10:00", "12:00", "14:00", "16:00", "18:00"]
     response = requests.request("POST", config_data["url_emulator_list"], headers=config_data["headers"],
-                                data=payload, proxies=config_data["proxies"])
+                                data=payload)
     res = json.loads(response.text)
     res_list = []
     for _ in res['data']:
@@ -47,8 +48,7 @@ def add_appointment(start_time, days, id, StoreId, subject):
     if days == 2:
         days = [2]
     for day in days:
-        emulator_time_list = get_emulator_time_list(StoreId, id, day)
-        # print(emulator_time_list)
+        emulator_time_list = get_emulator_time_list(StoreId, day)
         for time_list in emulator_time_list:
             if set(start_time) < set(time_list['leftTime']):
                 for _ in start_time:
@@ -61,7 +61,7 @@ def add_appointment(start_time, days, id, StoreId, subject):
                     print(config_data["payload_appointment"])
                     payload = json.dumps(config_data["payload_appointment"])
                     response = requests.request("POST", config_data["url_add"], headers=config_data["headers"],
-                                                data=payload, proxies=config_data["proxies"])
+                                                data=payload)
                     print(response.text)
             else:
                 if len(time_list['leftTime']) > 0:
@@ -75,7 +75,7 @@ def cancel_appointment(lession_id=96635):
         "id": lession_id
     })
     response = requests.request("POST", config_data["url_cancel"], headers=config_data["headers"],
-                                data=payload, proxies=config_data["proxies"])
+                                data=payload)
     print(response.text)
 
 
@@ -84,7 +84,7 @@ def my_schedule():
         "page": 1
     })
     response = requests.request("POST", config_data["url_appointmentRecord_list"], headers=config_data["headers"],
-                                data=payload, proxies=config_data["proxies"])
+                                data=payload)
     res = json.loads(response.text)
     res_list = []
     for _ in res["data"]:
@@ -100,7 +100,7 @@ def my_schedule():
     return res_list
 
 
-def one_day_schedule(StoreId, id, appointed_time="2023-07-26", days=0):
+def one_day_schedule(StoreId, appointed_time="2023-07-26", days=0):
     if isinstance(days, list):
         if days[0] < 3:
             appointed_time = str(datetime.date.today() + datetime.timedelta(days=days[0]))
@@ -109,10 +109,9 @@ def one_day_schedule(StoreId, id, appointed_time="2023-07-26", days=0):
             appointed_time = str(datetime.date.today() + datetime.timedelta(days=days))
     config_data["payload_schedule"]["appointmentDate"] = appointed_time
     config_data["payload_schedule"]["emulatorStoreId"] = StoreId
-    config_data["payload_schedule"]["identityNumber"] = id
     payload = json.dumps(config_data["payload_schedule"])
     response = requests.request("POST", config_data["url_emulator_list"], headers=config_data["headers"],
-                                data=payload, proxies=config_data["proxies"])
+                                data=payload)
     res = json.loads(response.text)
     schedule_list = []
     res_list = []
@@ -136,7 +135,7 @@ def one_day_schedule(StoreId, id, appointed_time="2023-07-26", days=0):
     return res_list
 
 
-def heart_girl(id, appointed_time, days=2):
+def heart_girl(appointed_time, days=2):
     if isinstance(days, list):
         if days[0] < 3:
             appointed_time = str(datetime.date.today() + datetime.timedelta(days=days[0]))
@@ -147,7 +146,7 @@ def heart_girl(id, appointed_time, days=2):
     wonderful_time = []
     found = False
     for s_id in StoreId:
-        res = one_day_schedule(s_id, id=id, appointed_time=appointed_time, days=days)
+        res = one_day_schedule(s_id, appointed_time=appointed_time, days=days)
         for _ in res:
             for one_line in _:
                 if one_line["name"] == "付钰":
@@ -158,6 +157,45 @@ def heart_girl(id, appointed_time, days=2):
         print("heart girl has appeared!")
     else:
         print(f"sorry!not today:{appointed_time}")
+
+
+def get_student_data(days=-120):
+    csv_file = "unique_data.csv"
+    if os.path.exists(csv_file):
+        os.remove(csv_file)
+        first_row = True
+    else:
+        first_row = False
+    schedule_list = []
+    for day in range(days, 3):
+        appointed_time = str(datetime.date.today() + datetime.timedelta(days=day))
+        for emulatorStoreId in [24, 25]:
+            for drivingSchoolId in [1, 2, 3]:
+                time.sleep(0.5)
+                config_data["payload_schedule"]["appointmentDate"] = appointed_time
+                config_data["payload_schedule"]["emulatorStoreId"] = emulatorStoreId
+                config_data["payload_schedule"]["drivingSchoolId"] = drivingSchoolId
+                payload = json.dumps(config_data["payload_schedule"])
+                response = requests.request("POST", config_data["url_emulator_list"], headers=config_data["headers"],
+                                            data=payload)
+                res = json.loads(response.text)
+                for _ in res["data"]:
+                    for schedule in _["appointmentList"]:
+                        schedule_dict = {}
+                        schedule_dict["name"] = schedule["name"]
+                        schedule_dict["identityNumber"] = schedule["identityNumber"]
+                        schedule_dict["phone"] = schedule["phone"]
+                        schedule_list.append(schedule_dict)
+                unique_data_list = [dict(item) for item in set(tuple(sorted(d.items())) for d in schedule_list)]
+                # 将去重后的数据写入CSV文件
+                with open(csv_file, mode="a+", newline="", encoding="utf-8") as file:
+                    writer = csv.writer(file)
+                    if first_row:
+                        first_row = False
+                        writer.writerow(unique_data_list[0].keys())  # 写入CSV文件的标题行，使用第一个字典的键作为标题
+                    for item in unique_data_list:
+                        writer.writerow(item.values())  # 写入去重后的数据
+                schedule_list.clear()
 
 
 def main():
@@ -172,8 +210,7 @@ def main():
     parser.add_argument("--appointed_time", default="2023-07-26", help="预约日期")
     args = parser.parse_args()
     # add_appointment(args.start_time, args.days, args.id, args.store_id, args.subject)
-    # print(get_emulator_time_list(args.days, args.store_id, args.id))
-    heart_girl(args.id, args.appointed_time, args.days)
+    heart_girl(args.appointed_time, args.days)
 
 
 if __name__ == "__main__":
@@ -187,10 +224,11 @@ if __name__ == "__main__":
     #     for i in range(5):
     #         time.sleep(0.5)
     main()
-    # res = get_emulator_time_list(StoreId=25, id=371081200406083416, days=2)
+    # res = get_emulator_time_list(StoreId=10, days=2)
     # print(res)
-    # appointed_time = str(datetime.date.today() + datetime.timedelta(days=-3))
-    # res = one_day_schedule(StoreId=25, id=371081200406083416, appointed_time=appointed_time, days=0)
+    # appointed_time = str(datetime.date.today() + datetime.timedelta(days=2))
+    # print(appointed_time)
+    # res = one_day_schedule(StoreId=25, days=1)
     # for _ in res:
     #     for x in _:
     #         print(x)
@@ -199,4 +237,4 @@ if __name__ == "__main__":
     # res = my_schedule()
     # print(res)
     # heart_girl()
-
+    # get_student_data()
