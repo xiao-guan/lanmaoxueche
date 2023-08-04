@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 300, unit: 'SECONDS')
+    }
+
+    environment {
+        // 定义镜像名称和标签
+        IMAGE_NAME = "xiaoguan11/lanmaoxueche"
+        IMAGE_TAG = "v1"
+    }
+
+    stages {
+        stage('拉取代码') {
+            steps {
+                script {
+                    if (pull_code == 'true'){
+                        git branch: 'main', credentialsId: "${sshkey}", url: 'https://github.com/xiao-guan/lanmaoxueche'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // 使用Dockerfile构建镜像
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    // 登录到Docker Hub
+                    docker.withRegistry('', "${wrg_docker}") {
+                        // 上传镜像到Docker Hub
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
+                }
+            }
+        }
+    }
+}

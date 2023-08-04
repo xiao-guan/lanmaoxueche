@@ -1,0 +1,102 @@
+pipeline {
+
+    environment {
+        // 定义一个空字符串用于保存处理后的结果
+        processedVariables = ""
+        // 定义一个顶层变量，用于保存 Python 脚本返回信息
+        pythonScriptOutput = ""
+    }
+
+    options {
+        timeout(time: 150, unit: 'SECONDS')
+    }
+
+    agent {
+        docker {
+            image "${image_name}" // 使用Python 3.9镜像
+        }
+    }
+
+    stages {
+
+        stage("获取环境变量"){
+            steps{
+                script{
+                    processedVariables = ""
+                    def environmentVariables = env.getEnvironment()
+                    // 遍历并打印所有环境变量
+                    environmentVariables.each { key, value ->
+                        // 判断是否是以 "PY_" 开头的环境变量
+                        if (key.startsWith("PY_")) {
+                            // 对键进行替换和拼接
+                            def newKey = key.replaceFirst("PY_", "--") + "=" + value + " "
+                            // 将处理后的键值对追加到结果字符串
+                            processedVariables += newKey
+                        }
+                    }
+                    echo "拼接的字符串：${processedVariables}"
+                }
+            }
+        }
+
+        stage('拉取代码') {
+            steps {
+                script {
+                    if (pull_code == 'true'){
+                        git branch: 'main', credentialsId: "${sshkey}", url: 'https://github.com/xiao-guan/lanmaoxueche'
+                    }
+                }
+            }
+        }
+
+        stage('Run Python Script') {
+            steps {
+                script {
+					dir("${WORKSPACE}") { // 进入workspace目录
+						// 使用 sh 命令运行 Python 脚本并将输出保存到变量中
+						pythonScriptOutput = sh(returnStdout: true, script: "python lanmao.py ${processedVariables}").trim()
+						echo "Python脚本返回信息：${pythonScriptOutput}"
+						// 将返回信息保存到文件中
+						writeFile file: 'python_script_output.txt', text: pythonScriptOutput
+					}
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                EMAIL_CONTENT = ''
+                EMAIL_CONTENT += '<hr/>(自动化构建邮件，无需回复！)<br/><hr/>'
+                EMAIL_CONTENT += '项目名称：$PROJECT_NAME<br/><br/>'
+                EMAIL_CONTENT += '项目描述：$JOB_DESCRIPTION<br/><br/>'
+                EMAIL_CONTENT += '运行编号：$BUILD_NUMBER<br/><br/>'
+                EMAIL_CONTENT += '简要概括：$BUILD_STATUS<br/><br/>'
+                EMAIL_CONTENT += '触发原因：${CAUSE}<br/><br/>'
+                EMAIL_CONTENT += '构建日志地址：<a href="${BUILD_URL}console">${BUILD_URL}console</a><br/><br/>'
+                EMAIL_CONTENT += '构建地址：<a href="$BUILD_URL">$BUILD_URL</a><br/><br/>'
+                EMAIL_CONTENT += 'Python脚本返回信息：<pre>'+ "${pythonScriptOutput}"+'</pre><br/>' // 将 Python 脚本返回信息包含在邮件中
+                EMAIL_CONTENT += '详情：${JELLY_SCRIPT,template="html"}<br/>'
+                EMAIL_CONTENT += '<hr/>'
+                emailext(subject: '${PROJECT_NAME}构建成功！',to: '${qqmail}',body: EMAIL_CONTENT)
+            }
+        }
+        failure {
+            script {
+                EMAIL_CONTENT = ''
+                EMAIL_CONTENT += '<hr/>(自动化构建邮件，无需回复！)<br/><hr/>'
+                EMAIL_CONTENT += '项目名称：$PROJECT_NAME<br/><br/>'
+                EMAIL_CONTENT += '项目描述：$JOB_DESCRIPTION<br/><br/>'
+                EMAIL_CONTENT += '运行编号：$BUILD_NUMBER<br/><br/>'
+                EMAIL_CONTENT += '简要概括：$BUILD_STATUS<br/><br/>'
+                EMAIL_CONTENT += '触发原因：${CAUSE}<br/><br/>'
+                EMAIL_CONTENT += '构建日志地址：<a href="${BUILD_URL}console">${BUILD_URL}console</a><br/><br/>'
+                EMAIL_CONTENT += '构建地址：<a href="$BUILD_URL">$BUILD_URL</a><br/><br/>'
+                EMAIL_CONTENT += '详情：${JELLY_SCRIPT,template="html"}<br/>'
+                EMAIL_CONTENT += '<hr/>'
+                emailext(subject: '${PROJECT_NAME}构建失败！',to: '${qqmail}',body: EMAIL_CONTENT)
+            }
+        }
+    }
+}
+
