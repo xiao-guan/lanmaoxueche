@@ -208,27 +208,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # now = time.strftime("%H:%M:%S")
-    # while now != "19:11:11":
-    #     now = time.strftime("%H:%M:%S")
-    #     time.sleep(0.5)
-    #     print(f"没到时间: {now}")
-    # else:
-    #     print(f"到时间了: {now}")
-    #     for i in range(5):
-    #         time.sleep(0.5)
     main()
-    # res = get_emulator_time_list(StoreId=10, days=2)
-    # print(res)
-    # appointed_time = str(datetime.date.today() + datetime.timedelta(days=2))
-    # print(appointed_time)
-    # res = one_day_schedule(StoreId=25, days=1)
-    # for _ in res:
-    #     for x in _:
-    #         print(x)
-    # print(res)
-    # cancel_appointment(111015)
-    # res = my_schedule()
-    # print(res)
-    # heart_girl()
-    # get_student_data()
