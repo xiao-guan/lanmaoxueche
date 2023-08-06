@@ -1,21 +1,21 @@
 {
-"url_emulator_list":"https://admin.lanmaoxueche.com/app/emulator/page/list",
-"url_appointmentRecord_list":"https://admin.lanmaoxueche.com/applet/appointmentRecord/page/list",
-"url_add":"https://admin.lanmaoxueche.com/app/emulatorAppointmentRecord/add",
-"url_cancel":"https://admin.lanmaoxueche.com/applet/appointmentRecord/cancel",
+"url_emulator_list":"https://www.baidu.com/",
+"url_appointmentRecord_list":"https://www.baidu.com/",
+"url_add":"https://www.baidu.com/",
+"url_cancel":"https://www.baidu.com/",
 "proxies":{"http":"http://localhost:7890", "https": "http://localhost:7890"},
 "headers":{
     "Content-Type": "application/json",
     "Connection": "close",
-    "Cookie": "JSESSIONID=99FEA71C784CF5AC9714D8BFD685512F",
-    "Authorization": "5a58b65c-1fc9-427c-8c89-cbf134c533e1"
+    "Cookie": "https://www.baidu.com/",
+    "Authorization": "https://www.baidu.com/"
 },
 
 "payload_schedule":{
     "appointmentDate": "2023-07-26",
     "emulatorStoreId": 10,
     "drivingSchoolId": 1,
-    "identityNumber": 371081200406083416,
+    "identityNumber": 12345678901234567489,
     "page": 1
 },
 
@@ -23,9 +23,9 @@
     "startTime": "14:00",
     "appointmentDate": "2023-07-26",
     "emulatorId": 312,
-    "identityNumber": 371081200406083416,
+    "identityNumber": 12345678901234567489,
     "emulatorStoreId": 10,
-    "subject": "科目三"
+    "subject": "12345678901234567489"
 }
 
 }

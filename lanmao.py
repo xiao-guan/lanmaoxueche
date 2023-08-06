@@ -10,12 +10,6 @@ import json
 
 with open("config.json", "r", encoding="utf8") as config:
     config_data = json.load(config)
-"""
-    appointmentDate: 预约的日期
-    emulatorStoreId： 门面的Id。 清湖懒猫10， 沙井实体车24， 布吉实体车25。
-    drivingSchoolId： 驾校
-    identityNumber： 身份证
-"""
 
 
 def get_emulator_time_list(StoreId, days=0):
@@ -149,7 +143,7 @@ def heart_girl(appointed_time, days=2):
         res = one_day_schedule(s_id, appointed_time=appointed_time, days=days)
         for _ in res:
             for one_line in _:
-                if one_line["name"] == "付钰":
+                if one_line["name"] == "大聪明":
                     wonderful_time.append(one_line)
                     found = True
     if found:
@@ -203,7 +197,7 @@ def main():
     parser.add_argument("--days", default=2, nargs="*", type=int, help="预约哪一天，0表今天，1表明天")
     parser.add_argument("--store_id", default=25, help="门面id")
     parser.add_argument("--start_time", default=None, nargs="*", type=str, help="预约时间 时间格式：12:00")
-    parser.add_argument("--id", default=371081200406083416, help="身份证")
+    parser.add_argument("--id", default=12345678901234567489, help="身份证")
     parser.add_argument("--subject", default="科目三", help="预约科目")
     parser.add_argument("--appointment", default=None, nargs="?", help="已经预约的课程")
     parser.add_argument("--lession_id", default=None, nargs="?", help="取消预约id")
